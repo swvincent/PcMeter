@@ -1,48 +1,4 @@
-﻿//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PcMeter CustomApplicationContext.cs
-//
-// Display CPU load% and Committed Memory% and send to PC meter device via serial port.
-//
-// PC Meter application written by Scott W. Vincent.
-//
-// http://www.swvincent.com/pcmeter
-// Visit the webpage for more information including info on the arduino-based meter I built that is driven by this program.
-//
-// Email: scott@swvincent.com
-//
-// Revised 5/20/2015 - Switched from using PerformanceCounter("Memory", "% Committed Bytes In Use", ""); for memory (which is actually page file usage)
-//                     to using Antonio Bakula's GetPerformanceInfo code. Thanks to mnedix for bringing the issue to my attention. You can see what he
-//                     did using my code at http://www.instructables.com/id/Nixie-PC-MeterMonitor/.
-//
-// Revised 2/28/2018 - v2.0! Big rewrite so the program runs properly as a tray application. When I originally wrote this app I had no experience with
-//                     writing this type of application and made several beginner's mistakes that caused errors on shutdown/resume/etc. Many thanks to
-//                     Michael Sorens for his excellent article and code that shows the correct way of doing it. You can find it here:
-//                     https://www.red-gate.com/simple-talk/dotnet/.net-framework/creating-tray-applications-in-.net-a-practical-guide/
-//
-// MIT License
-// 
-// Copyright (c) 2018 Scott W. Vincent
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -80,8 +36,6 @@ namespace PcMeter
         //Menu
         private ToolStripLabel cpuLabel;                        //For displaying CPU%
         private ToolStripLabel memLabel;                        //For displaying Memory%
-        //private ToolStripTextBox cpuTextBox;                    //CPU Text box, show CPU%
-        //private ToolStripTextBox memTextBox;                    //Memory text box, show Memory%
         private ToolStripMenuItem connectMenuItem;              //Menu item to connect/disconnect com port
         private ToolStripMenuItem settingsMenuItem;             //Menu item to open settings form
 
@@ -93,12 +47,6 @@ namespace PcMeter
 
         #region Constructor and Init
 
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        /// <remarks>
-        /// This class should be created and passed into Application.Run( ... )
-        /// </remarks>
         public CustomApplicationContext()
         {
             InitializeContext();
@@ -116,10 +64,6 @@ namespace PcMeter
             }
         }
 
-
-        /// <summary>
-        /// Initialize Context
-        /// </summary>
         private void InitializeContext()
         {
             components = new System.ComponentModel.Container();
@@ -166,16 +110,10 @@ namespace PcMeter
 
         #region Timer and Update Stats
 
-        /// <summary>
-        /// Calculate stats and send to COM port on tick
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void meterTimer_Tick(object sender, EventArgs e)
         {
             UpdateAndSentStats();
         }
-
 
         private void UpdateAndSentStats()
         {
@@ -277,26 +215,21 @@ namespace PcMeter
             }
         }
 
-
-        // attach to context menu items
         private void showAboutItem_Click(object sender, EventArgs e)
         {
             ShowAboutForm();
         }
-
 
         private void settingsMenuItem_Click(object sender, EventArgs e)
         {
             ShowSettingsForm();
         }
 
-
         // null out the forms so we know to create a new one.
         private void aboutForm_Closed(object sender, EventArgs e)
         {
             aboutForm = null;
         }
-
 
         private void settingsForm_Closed(object sender, EventArgs e)
         {
@@ -307,10 +240,6 @@ namespace PcMeter
 
         #region Exit
 
-        /// <summary>
-        /// Dispose objects, etc.
-        /// </summary>
-        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             //Dispose things specific to this app
@@ -322,21 +251,11 @@ namespace PcMeter
                 components.Dispose();
         }
 
-
-        /// <summary>
-        /// When the exit menu item is clicked, make a call to terminate the ApplicationContext.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void exitItem_Click(object sender, EventArgs e)
         {
             ExitThread();
         }
 
-
-        /// <summary>
-        /// If we are presently showing a form, clean it up.
-        /// </summary>
         protected override void ExitThreadCore()
         {
             // before we exit, let forms clean themselves up.
@@ -350,11 +269,6 @@ namespace PcMeter
 
         #region Serial
 
-        /// <summary>
-        /// Connect/Disconnect COM port.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void connectMenuItem_Click(object sender, EventArgs e)
         {
             if (connectMenuItem.Checked)
@@ -363,17 +277,12 @@ namespace PcMeter
                 InitSerial();
         }
 
-
-        /// <summary>
-        /// Refresh available options based on serial port status.
-        /// </summary>
         private void RefreshMenuOptions()
         {
             bool portActive = meterPort != null && meterPort.IsOpen;
             connectMenuItem.Checked = portActive;
             settingsMenuItem.Enabled = !portActive;
         }
-
 
         /// <summary>
         /// Initialize serial port and connect.  Display error if any occur.
@@ -420,7 +329,6 @@ namespace PcMeter
             }
         }
 
-
         private bool DisposeSerial()
         {
             try
@@ -456,10 +364,6 @@ namespace PcMeter
 
         #region Counters Init/Dispose
 
-        /// <summary>
-        /// Initialize performance counters
-        /// </summary>
-        /// <returns></returns>
         private bool InitCounters()
         {
             try
@@ -474,7 +378,6 @@ namespace PcMeter
                 return false;
             }
         }
-
 
         /// <summary>
         /// Dispose counter objects

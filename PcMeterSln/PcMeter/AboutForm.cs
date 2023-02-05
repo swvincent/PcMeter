@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Diagnostics;           //for Process
+using System.Diagnostics;
 
 namespace PcMeter
 {
@@ -17,17 +17,12 @@ namespace PcMeter
             InitializeComponent();
         }
 
-        /// <summary>
-        /// Load link and license text.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void AboutForm_Load(object sender, EventArgs e)
         {
             const string WEB_LINK = "http://www.swvincent.com/pcmeter";
             const string LICENSE_TEXT = @"MIT License
 
-Copyright (c) 2018 Scott W. Vincent
+Copyright (c) 2018-2023 Scott W. Vincent
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the ""Software""), to deal
@@ -54,23 +49,11 @@ SOFTWARE.";
             licenseTextBox.Text = LICENSE_TEXT;
         }
 
-        
-        /// <summary>
-        /// Close about form.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void okButton_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-
-        /// <summary>
-        /// Load website.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void pcMeterLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start(e.Link.LinkData as string);

@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("PC Meter")]
 [assembly: AssemblyDescription("Small program that drives the PC Meter device")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Scott W. Vincent (www.lungStruck.com)")]
+[assembly: AssemblyCompany("Scott W. Vincent")]
 [assembly: AssemblyProduct("PcMeter")]
 [assembly: AssemblyCopyright("CC0 1.0 Universal (CC0 1.0)")]
 [assembly: AssemblyTrademark("")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2.1.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
