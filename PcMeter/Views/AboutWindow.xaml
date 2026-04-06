@@ -1,0 +1,60 @@
+<Window x:Class="PcMeter.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About PC Meter"
+        ResizeMode="NoResize"
+        Width="520" Height="420"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header: icon + title -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <Image Source="/Assets/pcmeter.ico" Width="32" Height="32"
+                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="PC Meter" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Text="Version 2.0"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Copyright and link -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,8">
+            <TextBlock Text="Copyright © 2018-2023 Scott W. Vincent"/>
+            <TextBlock>
+                <Hyperlink x:Name="WebsiteLink" Click="WebsiteLink_Click">
+                    http://www.swvincent.com/pcmeter
+                </Hyperlink>
+            </TextBlock>
+        </StackPanel>
+
+        <!-- Description -->
+        <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="0,0,0,8"
+                   Text="Sends CPU and memory utilization data to a PC Meter device over a serial port."/>
+
+        <!-- License -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,0,0,12">
+            <TextBox x:Name="LicenseTextBox"
+                     IsReadOnly="True"
+                     TextWrapping="Wrap"
+                     Background="Transparent"
+                     BorderThickness="1"
+                     Padding="4"
+                     FontFamily="Consolas"
+                     FontSize="11"/>
+        </ScrollViewer>
+
+        <!-- OK button -->
+        <Button Grid.Row="4" Content="OK" Width="80"
+                HorizontalAlignment="Right"
+                IsDefault="True" IsCancel="True"
+                Click="OkButton_Click"/>
+    </Grid>
+</Window>

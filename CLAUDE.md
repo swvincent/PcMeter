@@ -6,39 +6,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 PcMeter is a Windows system tray application that reads CPU and memory utilization and sends the data over serial to an Arduino-based physical meter device (analog gauges with LEDs). There is also Arduino firmware for the device itself.
 
-## Build
+## Projects
 
-Open and build using Visual Studio:
+There are two Windows tray applications in this repo. The modern one (`PcMeter/`) supersedes the legacy one (`PcMeterSln/`).
+
+### PcMeter — .NET 8 WPF (current)
 
 ```
-PcMeterSln\PcMeterSln.sln
+dotnet build PcMeter/PcMeter.csproj
+dotnet run --project PcMeter/PcMeter.csproj
 ```
 
-Or build from the command line with MSBuild:
+### PcMeterSln — .NET Framework 4.8 WinForms (legacy)
 
 ```
 msbuild PcMeterSln\PcMeterSln.sln /p:Configuration=Debug /p:Platform="Mixed Platforms"
 ```
 
-- Target framework: .NET Framework 4.8
-- PcMeter project builds as x86 (`Debug|x86` / `Release|x86`)
-- MutexManager project builds as Any CPU
-
 There are no automated tests in this project.
 
-## Architecture
+## Architecture — PcMeter (.NET 8 WPF)
 
-The solution has two C# projects and one Arduino sketch:
+Entry point is `App.xaml.cs` (`App : Application`). There is no main window; the app is tray-only with `ShutdownMode = OnExplicitShutdown`.
 
-**MutexManager** — a helper library that enforces single-instance behavior using a named mutex (GUID-based). `SingleInstance.Start()` / `Stop()` are called from `Program.cs`.
+**App.xaml.cs** — central orchestrator. Owns the single-instance `Mutex`, creates the three services, retrieves the `TaskbarIcon` and named `MenuItem` references from XAML resources, and runs a 500ms `DispatcherTimer` that reads metrics and sends serial data each tick. All menu click handlers route through public `OnXxxMenuClick()` methods here.
 
-**PcMeter** — the main WinForms tray application. Entry point is `Program.cs`, which uses `CustomApplicationContext` (derives from `ApplicationContext`) instead of a main form. Key responsibilities in `CustomApplicationContext`:
-- **System tray** — `NotifyIcon` with a context menu showing live CPU% and Memory% labels, connect/disconnect toggle, settings, about, and exit.
-- **Performance counters** — CPU% via `PerformanceCounter("Processor", "% Processor Time", "_Total")`. Memory% via P/Invoke to `psapi.dll!GetPerformanceInfo` (wrapped in `PsApiWrapper` / `PerfomanceInfoData` in `PsApiPerformanceInfo.cs`), calculated as `100 - (availableBytes / totalBytes * 100)`.
-- **Serial communication** — sends data to the meter device every 500ms via `SerialPort`. Format: `C{cpu%}\rM{mem%}\r` (carriage-return delimited, prefixed with `C` for CPU or `M` for memory). COM port is stored in user settings (`Settings.Default.MeterComPort`).
-- **Settings** — `SettingsForm` lets the user pick a COM port from available ports; saved via `Properties.Settings`.
+**Services/**
+- `AppSettings` — POCO with `ComPort` property. `Load()` / `Save()` read and write `%APPDATA%\PcMeter\settings.json` via `System.Text.Json`. Default port is `COM20`.
+- `MetricsService` — CPU% via `PerformanceCounter("Processor", "% Processor Time", "_Total")`; Memory% via P/Invoke to `psapi.dll!GetPerformanceInfo` (inner `PsApiWrapper` class), formula `100 - (available / total * 100)`. Implements `IDisposable`.
+- `SerialService` — wraps `SerialPort` at 9600 baud. `Connect()` / `Disconnect()` / `TrySend(cpu, mem)`. Fires `ErrorOccurred(message, isSleepResumeError)` event, marshaled to the UI thread via the captured `Dispatcher`.
 
-**Arduino firmware** (`arduino/pcmeter2/pcmeter2.ino`) — runs on an Arduino Leonardo at 9600 baud. Parses the `C{n}\r` / `M{n}\r` serial protocol, smooths values using a rolling average of 20 readings, drives two analog meters via PWM (`analogWrite`), and controls green/red LEDs (red zone at ≥80%). Includes a screensaver mode that sweeps needles back and forth when no serial data is received for 2 seconds.
+**TrayIcon/TrayContextMenu.xaml** — `ResourceDictionary` with `x:Class` code-behind. Declares the `TaskbarIcon` (key `"TrayIcon"`) with a WPF `ContextMenu` containing named items (`CpuMenuItem`, `MemMenuItem`, `ConnectMenuItem`, `SettingsMenuItem`). Click handlers in the code-behind delegate to `App`.
+
+**Views/SettingsWindow** — lists available COM ports in a `ComboBox`, pre-selects the saved port, and calls `_settings.Save()` on OK.
+
+**Views/AboutWindow** — shows app info, MIT license text, and a clickable URL opened via `Process.Start` with `UseShellExecute = true`.
+
+NuGet packages: `H.NotifyIcon.Wpf` (tray icon), `System.IO.Ports` (serial), `System.Diagnostics.PerformanceCounter` (CPU stats).
+
+## Architecture — PcMeterSln (.NET Framework 4.8 WinForms, legacy)
+
+Two projects: **MutexManager** (single-instance helper library) and **PcMeter** (WinForms tray app). Entry point is `Program.cs`; `CustomApplicationContext : ApplicationContext` drives the app. Same serial protocol and metrics approach as the modern app.
 
 ## Serial Protocol
 
@@ -48,6 +56,4 @@ The Windows app sends to the Arduino:
 
 Messages are sent together every 500ms: `C{cpu}\rM{mem}\r`
 
-## User Settings
-
-The only persisted setting is `MeterComPort` (the selected COM port name). Settings are saved using the standard .NET `Properties.Settings` mechanism (stored in the user's AppData).
+**Arduino firmware** (`arduino/pcmeter2/pcmeter2.ino`) — runs on an Arduino Leonardo at 9600 baud. Smooths values using a rolling average of 20 readings, drives two analog meters via PWM, and controls green/red LEDs (red zone ≥80%). Includes a screensaver mode when no serial data is received for 2 seconds.
