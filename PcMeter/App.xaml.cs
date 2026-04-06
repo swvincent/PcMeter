@@ -110,12 +110,18 @@ public partial class App : Application
         contextMenu.Items.Add(new Separator());
         contextMenu.Items.Add(exitItem);
 
-        return new TaskbarIcon
+        var icon = new TaskbarIcon
         {
             IconSource = new BitmapImage(new Uri("pack://application:,,,/Assets/pcmeter.ico")),
             ToolTipText = "PC Meter",
             ContextMenu = contextMenu
         };
+
+        // Required when TaskbarIcon is created in code rather than being part of a visual tree.
+        // Without this, the icon never registers with the Windows system tray.
+        icon.ForceCreate(enablesEfficiencyMode: false);
+
+        return icon;
     }
 
     private void OnTimerTick(object? sender, EventArgs e)
