@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
@@ -19,7 +20,7 @@ public partial class App : Application
     private TaskbarIcon? _trayIcon;
     private DispatcherTimer? _timer;
 
-    // Named menu item refs
+    // Named menu item refs — set in CreateTrayIcon()
     private MenuItem? _cpuMenuItem;
     private MenuItem? _memMenuItem;
     private MenuItem? _connectMenuItem;
@@ -55,7 +56,8 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"The performance counter(s) could not be initialized. The program cannot continue.\n\nDetails: {ex.Message}",
+            MessageBox.Show(
+                $"The performance counter(s) could not be initialized. The program cannot continue.\n\nDetails: {ex.Message}",
                 "PC Meter Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
             return;
@@ -65,13 +67,8 @@ public partial class App : Application
         _serial = new SerialService();
         _serial.ErrorOccurred += OnSerialError;
 
-        // Get tray icon and named menu items from resources
-        _trayIcon = (TaskbarIcon)Resources["TrayIcon"];
-        var cm = _trayIcon.ContextMenu!;
-        _cpuMenuItem      = (MenuItem)cm.FindName("CpuMenuItem");
-        _memMenuItem      = (MenuItem)cm.FindName("MemMenuItem");
-        _connectMenuItem  = (MenuItem)cm.FindName("ConnectMenuItem");
-        _settingsMenuItem = (MenuItem)cm.FindName("SettingsMenuItem");
+        // Build tray icon and context menu entirely in code
+        _trayIcon = CreateTrayIcon();
 
         // Set up timer
         _timer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher.CurrentDispatcher)
@@ -83,6 +80,42 @@ public partial class App : Application
         // Connect and start
         TryConnect();
         _timer.Start();
+    }
+
+    private TaskbarIcon CreateTrayIcon()
+    {
+        _cpuMenuItem = new MenuItem { Header = "CPU: ?", IsEnabled = false };
+        _memMenuItem = new MenuItem { Header = "Memory: ?", IsEnabled = false };
+
+        _connectMenuItem = new MenuItem { Header = "_Connect", IsCheckable = true };
+        _connectMenuItem.Click += (_, _) => OnConnectMenuClick();
+
+        _settingsMenuItem = new MenuItem { Header = "_Settings" };
+        _settingsMenuItem.Click += (_, _) => OnSettingsMenuClick();
+
+        var aboutItem = new MenuItem { Header = "_About" };
+        aboutItem.Click += (_, _) => OnAboutMenuClick();
+
+        var exitItem = new MenuItem { Header = "E_xit" };
+        exitItem.Click += (_, _) => OnExitMenuClick();
+
+        var contextMenu = new ContextMenu();
+        contextMenu.Items.Add(_cpuMenuItem);
+        contextMenu.Items.Add(_memMenuItem);
+        contextMenu.Items.Add(new Separator());
+        contextMenu.Items.Add(_connectMenuItem);
+        contextMenu.Items.Add(new Separator());
+        contextMenu.Items.Add(_settingsMenuItem);
+        contextMenu.Items.Add(aboutItem);
+        contextMenu.Items.Add(new Separator());
+        contextMenu.Items.Add(exitItem);
+
+        return new TaskbarIcon
+        {
+            IconSource = new BitmapImage(new Uri("pack://application:,,,/Assets/pcmeter.ico")),
+            ToolTipText = "PC Meter",
+            ContextMenu = contextMenu
+        };
     }
 
     private void OnTimerTick(object? sender, EventArgs e)
@@ -127,13 +160,13 @@ public partial class App : Application
 
         _timer?.Stop();
         _serial?.Disconnect();
-        MessageBox.Show($"Communication with the device has been lost. Has it been unplugged?\n\nDetails: {message}",
+        MessageBox.Show(
+            $"Communication with the device has been lost. Has it been unplugged?\n\nDetails: {message}",
             "PC Meter Error", MessageBoxButton.OK, MessageBoxImage.Error);
         RefreshMenuState();
         _timer?.Start();
     }
 
-    // Called by TrayContextMenu code-behind
     public void OnConnectMenuClick()
     {
         if (_serial?.IsConnected == true)
