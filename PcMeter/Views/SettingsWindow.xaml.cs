@@ -20,7 +20,7 @@ public partial class SettingsWindow : Window
 
         if (ports.Count == 0)
         {
-            MessageBox.Show(
+            MessageBox.Show(this,
                 "No COM ports were found. Make sure the PC Meter device is connected and drivers are installed.",
                 "No COM Ports", MessageBoxButton.OK, MessageBoxImage.Warning);
             ComPortComboBox.IsEnabled = false;
