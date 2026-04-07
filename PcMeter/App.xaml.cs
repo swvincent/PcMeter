@@ -13,7 +13,7 @@ public partial class App : Application
     private const string MutexName = "Local\\PcMeter-8F3A2B1C-4D5E-6F7A-8B9C-0D1E2F3A4B5C";
 
     private Mutex? _singleInstanceMutex;
-    private AppSettings _settings = AppSettings.Load();
+    private readonly AppSettings _settings = AppSettings.Load();
     private MetricsService? _metrics;
     private SerialService? _serial;
     private TaskbarIcon? _trayIcon;
@@ -110,7 +110,8 @@ public partial class App : Application
         {
             IconSource = new BitmapImage(new Uri("pack://application:,,,/Assets/pcmeter.ico")),
             ToolTipText = "PC Meter",
-            ContextMenu = contextMenu
+            ContextMenu = contextMenu,
+            MenuActivation = PopupActivationMode.LeftOrRightClick
         };
 
         // Required when TaskbarIcon is created in code rather than being part of a visual tree.
