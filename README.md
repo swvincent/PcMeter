@@ -90,7 +90,7 @@ Both are sent together every 500ms: `C42\rM67\r`
 
 ```
 PcMeter/            .NET 8 WPF tray application (current)
-PcMeterSln/         .NET Framework 4.8 WinForms app (legacy)
+PcMeter (legacy)/   .NET Framework 4.8 WinForms app (legacy)
 arduino/pcmeter2/   Arduino firmware
 drawings/           Meter face artwork (SVG + PNG)
 ```
