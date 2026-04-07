@@ -152,15 +152,12 @@ public partial class App : Application
         _settingsMenuItem!.IsEnabled = !connected;
     }
 
-    private void OnSerialError(string message, bool isSleepResumeError)
+    private void OnSerialError(string message)
     {
-        if (isSleepResumeError)
-            return;
-
         _timer?.Stop();
         _serial?.Disconnect();
         MessageBox.Show(
-            $"Communication with the device has been lost. Has it been unplugged?\n\nDetails: {message}",
+            $"A serial port communication error occured:\n\n{message}",
             "PC Meter Error", MessageBoxButton.OK, MessageBoxImage.Error);
         RefreshMenuState();
         _timer?.Start();

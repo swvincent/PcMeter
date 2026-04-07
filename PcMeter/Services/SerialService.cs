@@ -9,8 +9,8 @@ public class SerialService
     private SerialPort? _port;
     private readonly Dispatcher _dispatcher;
 
-    // (message, isSleepResumeError)
-    public event Action<string, bool>? ErrorOccurred;
+    // (message)
+    public event Action<string>? ErrorOccurred;
 
     public bool IsConnected => _port?.IsOpen == true;
 
@@ -34,7 +34,7 @@ public class SerialService
         catch (UnauthorizedAccessException)
         {
             ErrorOccurred?.Invoke(
-                $"Access to {portName} is denied. It may already be in use by another application or process.", false);
+                $"Access to {portName} is denied. It may already be in use by another application or process.");
             _port?.Dispose();
             _port = null;
             return false;
@@ -42,14 +42,14 @@ public class SerialService
         catch (IOException)
         {
             ErrorOccurred?.Invoke(
-                $"{portName} could not be opened. Check to be sure that it is a valid COM port.", false);
+                $"{portName} could not be opened. Check to be sure that it is a valid COM port.");
             _port?.Dispose();
             _port = null;
             return false;
         }
         catch (Exception ex)
         {
-            ErrorOccurred?.Invoke(ex.Message, false);
+            ErrorOccurred?.Invoke(ex.Message);
             _port?.Dispose();
             _port = null;
             return false;
@@ -88,13 +88,13 @@ public class SerialService
             // connection during sleep/resume. The HResult upper bits encode HRESULT facility
             // info, so mask them off to get the underlying Win32 code.
             bool isSleepResume = (ex.HResult & 0xFFFF) == 31;
-            string message = ex.Message;
-            _dispatcher.Invoke(() => ErrorOccurred?.Invoke(message, isSleepResume));
+
+            if (!isSleepResume)
+                _dispatcher.Invoke(() => ErrorOccurred?.Invoke(ex.Message));
         }
         catch (Exception ex)
         {
-            string message = ex.Message;
-            _dispatcher.Invoke(() => ErrorOccurred?.Invoke(message, false));
+            _dispatcher.Invoke(() => ErrorOccurred?.Invoke(ex.Message));
         }
     }
 }
