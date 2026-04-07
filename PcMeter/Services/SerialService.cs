@@ -35,6 +35,7 @@ public class SerialService
         {
             ErrorOccurred?.Invoke(
                 $"Access to {portName} is denied. It may already be in use by another application or process.", false);
+            _port?.Dispose();
             _port = null;
             return false;
         }
@@ -42,12 +43,14 @@ public class SerialService
         {
             ErrorOccurred?.Invoke(
                 $"{portName} could not be opened. Check to be sure that it is a valid COM port.", false);
+            _port?.Dispose();
             _port = null;
             return false;
         }
         catch (Exception ex)
         {
             ErrorOccurred?.Invoke(ex.Message, false);
+            _port?.Dispose();
             _port = null;
             return false;
         }
@@ -58,8 +61,7 @@ public class SerialService
         if (_port == null) return;
         try
         {
-            if (_port.IsOpen)
-                _port.Dispose();
+            _port.Dispose();
         }
         catch (IOException)
         {
