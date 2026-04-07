@@ -13,7 +13,7 @@ public partial class App : Application
     private static readonly string MutexName = "Local\\PcMeter-8F3A2B1C-4D5E-6F7A-8B9C-0D1E2F3A4B5C";
 
     private Mutex? _singleInstanceMutex;
-    private AppSettings _settings = new();
+    private AppSettings _settings = AppSettings.Load();
     private MetricsService? _metrics;
     private SerialService? _serial;
     private TaskbarIcon? _trayIcon;
@@ -44,9 +44,6 @@ public partial class App : Application
             Shutdown();
             return;
         }
-
-        // Load settings
-        _settings = AppSettings.Load();
 
         // Initialize metrics
         try
@@ -128,8 +125,8 @@ public partial class App : Application
         int cpu = _metrics!.GetCpuPercent();
         int mem = _metrics.GetMemPercent();
 
-        if (_cpuMenuItem != null) _cpuMenuItem.Header = $"CPU: {cpu}%";
-        if (_memMenuItem != null) _memMenuItem.Header = $"Memory: {mem}%";
+        _cpuMenuItem!.Header = $"CPU: {cpu}%";
+        _memMenuItem!.Header = $"Memory: {mem}%";
 
         _serial!.TrySend(cpu, mem);
     }
@@ -149,13 +146,9 @@ public partial class App : Application
     private void RefreshMenuState()
     {
         bool connected = _serial?.IsConnected == true;
-        if (_connectMenuItem != null)
-        {
-            _connectMenuItem.Header = connected ? "_Connected" : "_Connect";
-            _connectMenuItem.IsChecked = connected;
-        }
-        if (_settingsMenuItem != null)
-            _settingsMenuItem.IsEnabled = !connected;
+        _connectMenuItem!.Header = connected ? "_Connected" : "_Connect";
+        _connectMenuItem.IsChecked = connected;
+        _settingsMenuItem!.IsEnabled = !connected;
     }
 
     private void OnSerialError(string message, bool isSleepResumeError)
@@ -172,7 +165,7 @@ public partial class App : Application
         _timer?.Start();
     }
 
-    public void OnConnectMenuClick()
+    private void OnConnectMenuClick()
     {
         if (_serial?.IsConnected == true)
         {
@@ -185,7 +178,7 @@ public partial class App : Application
         }
     }
 
-    public void OnSettingsMenuClick()
+    private void OnSettingsMenuClick()
     {
         if (_settingsWindow == null)
         {
@@ -199,7 +192,7 @@ public partial class App : Application
         }
     }
 
-    public void OnAboutMenuClick()
+    private void OnAboutMenuClick()
     {
         if (_aboutWindow == null)
         {
@@ -213,7 +206,7 @@ public partial class App : Application
         }
     }
 
-    public void OnExitMenuClick()
+    private void OnExitMenuClick()
     {
         Shutdown();
     }
