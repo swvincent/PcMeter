@@ -18,19 +18,15 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
             <Image Source="/Assets/pcmeter.ico" Width="32" Height="32"
                    VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="PC Meter" FontSize="28" FontWeight="Bold"/>
-            </StackPanel>
+            <TextBlock Text="PC Meter" FontSize="28" FontWeight="Bold" VerticalAlignment="Center"/>
         </StackPanel>
 
         <!-- Copyright and link -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,8">
-            <TextBlock>
-                <Hyperlink x:Name="WebsiteLink" Click="WebsiteLink_Click">
-                    https://github.com/swvincent/PcMeter
-                </Hyperlink>
-            </TextBlock>
-        </StackPanel>
+        <TextBlock Grid.Row="1" Margin="0,0,0,8">
+            <Hyperlink x:Name="WebsiteLink" Click="WebsiteLink_Click">
+                https://github.com/swvincent/PcMeter
+            </Hyperlink>
+        </TextBlock>
 
         <!-- Description -->
         <TextBlock Grid.Row="2" TextWrapping="Wrap" Margin="0,0,0,8"

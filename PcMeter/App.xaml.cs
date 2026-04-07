@@ -10,7 +10,7 @@ namespace PcMeter;
 
 public partial class App : Application
 {
-    private static readonly string MutexName = "Local\\PcMeter-8F3A2B1C-4D5E-6F7A-8B9C-0D1E2F3A4B5C";
+    private const string MutexName = "Local\\PcMeter-8F3A2B1C-4D5E-6F7A-8B9C-0D1E2F3A4B5C";
 
     private Mutex? _singleInstanceMutex;
     private AppSettings _settings = AppSettings.Load();
@@ -134,9 +134,9 @@ public partial class App : Application
     private void TryConnect()
     {
         bool connected = _serial!.Connect(_settings.ComPort);
-        if (connected && _trayIcon != null)
+        if (connected)
         {
-            _trayIcon.ShowNotification("PC Meter",
+            _trayIcon!.ShowNotification("PC Meter",
                 $"PC Meter connected to {_settings.ComPort}",
                 NotificationIcon.Info);
         }
