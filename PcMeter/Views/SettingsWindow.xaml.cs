@@ -30,10 +30,18 @@ public partial class SettingsWindow : Window
 
         ComPortComboBox.ItemsSource = ports;
 
-        // Pre-select the saved port if it is in the list, otherwise select the first
-        ComPortComboBox.SelectedItem = ports.Contains(_settings.ComPort)
-            ? _settings.ComPort
-            : ports[0];
+        // Pre-select the saved port if it is in the list, otherwise warn and select the first
+        if (ports.Contains(_settings.ComPort))
+        {
+            ComPortComboBox.SelectedItem = _settings.ComPort;
+        }
+        else
+        {
+            ComPortComboBox.SelectedItem = ports[0];
+            MessageBox.Show(this,
+                $"Saved port {_settings.ComPort} was not found. Please select the correct port.",
+                "Port Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private void OkButton_Click(object sender, RoutedEventArgs e)
