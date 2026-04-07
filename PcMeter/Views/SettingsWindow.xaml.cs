@@ -46,13 +46,7 @@ public partial class SettingsWindow : Window
 
     private void OkButton_Click(object sender, RoutedEventArgs e)
     {
-        if (ComPortComboBox.SelectedItem is not string selectedPort)
-        {
-            ValidationText.Visibility = Visibility.Visible;
-            return;
-        }
-
-        _settings.ComPort = selectedPort;
+        _settings.ComPort = (string)ComPortComboBox.SelectedItem;
         _settings.Save();
         Close();
     }

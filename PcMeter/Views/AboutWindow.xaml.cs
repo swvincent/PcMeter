@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Navigation;
 
 namespace PcMeter.Views;
 
@@ -28,16 +27,12 @@ public partial class AboutWindow : Window
     public AboutWindow()
     {
         InitializeComponent();
-    }
-
-    private void Window_Loaded(object sender, RoutedEventArgs e)
-    {
         LicenseTextBox.Text = LicenseText;
     }
 
     private void WebsiteLink_Click(object sender, RoutedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo("http://www.swvincent.com/pcmeter")
+        Process.Start(new ProcessStartInfo("https://github.com/swvincent/PcMeter")
         {
             UseShellExecute = true
         });

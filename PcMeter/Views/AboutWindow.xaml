@@ -4,8 +4,7 @@
         Title="About PC Meter"
         ResizeMode="NoResize"
         Width="520" Height="420"
-        WindowStartupLocation="CenterScreen"
-        Loaded="Window_Loaded">
+        WindowStartupLocation="CenterScreen">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

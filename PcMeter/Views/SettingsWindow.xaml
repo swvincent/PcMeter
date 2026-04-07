@@ -10,7 +10,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -21,11 +20,7 @@
                VerticalAlignment="Center" Margin="0,0,8,0"/>
         <ComboBox x:Name="ComPortComboBox" Grid.Row="0" Grid.Column="1"/>
 
-        <TextBlock x:Name="ValidationText" Grid.Row="1" Grid.ColumnSpan="2"
-                   Foreground="Red" Visibility="Collapsed"
-                   Text="COM Port is required." Margin="0,4,0,0"/>
-
-        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal"
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal"
                     HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button x:Name="OkButton" Content="_OK" Width="80"
                     Click="OkButton_Click" Margin="0,0,8,0" IsDefault="True"/>
