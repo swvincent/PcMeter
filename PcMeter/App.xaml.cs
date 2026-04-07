@@ -152,13 +152,35 @@ public partial class App : Application
         _settingsMenuItem!.IsEnabled = !connected;
     }
 
+    private bool _showingError;
+
     private void OnSerialError(string message)
     {
+        if (_showingError) return;
+        _showingError = true;
+
         _timer?.Stop();
         _serial?.Disconnect();
-        MessageBox.Show(
+
+        // A topmost helper window as owner ensures the dialog appears above other windows.
+        // Without an owner, ownerless dialogs in tray apps can appear behind the focused window.
+        var helper = new Window
+        {
+            WindowStyle = WindowStyle.None,
+            ShowInTaskbar = false,
+            Topmost = true,
+            Width = 0,
+            Height = 0
+        };
+
+        helper.Show();
+
+        MessageBox.Show(helper,
             $"A serial port communication error occured:\n\n{message}",
             "PC Meter Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        helper.Close();
+
+        _showingError = false;
         RefreshMenuState();
         _timer?.Start();
     }
