@@ -80,7 +80,12 @@ public class SerialService
         }
         catch (IOException ex)
         {
-            bool isSleepResume = ex.Message.Contains("A device attached to the system is not functioning");
+            // Detect transient sleep/resume disconnects via Win32 error code rather than the
+            // exception message, which is localized and varies across Windows language editions.
+            // ERROR_GEN_FAILURE (31 / 0x1F) is raised when a USB virtual COM port loses its
+            // connection during sleep/resume. The HResult upper bits encode HRESULT facility
+            // info, so mask them off to get the underlying Win32 code.
+            bool isSleepResume = (ex.HResult & 0xFFFF) == 31;
             string message = ex.Message;
             _dispatcher.Invoke(() => ErrorOccurred?.Invoke(message, isSleepResume));
         }
