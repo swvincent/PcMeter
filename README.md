@@ -2,7 +2,7 @@
 
 A Windows system tray application that sends CPU and memory utilization to a custom Arduino-based analog meter device.
 
-![meter face](drawings/cpu-meter-face-600dpi.png)
+![meter face](drawings/pc-meter-topdown-view.jpg)
 
 ## Overview
 

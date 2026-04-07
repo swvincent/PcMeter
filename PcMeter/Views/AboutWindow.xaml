@@ -20,17 +20,15 @@
             <Image Source="/Assets/pcmeter.ico" Width="32" Height="32"
                    VerticalAlignment="Center" Margin="0,0,10,0"/>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="PC Meter" FontSize="18" FontWeight="Bold"/>
-                <TextBlock Text="Version 2.0"/>
+                <TextBlock Text="PC Meter" FontSize="28" FontWeight="Bold"/>
             </StackPanel>
         </StackPanel>
 
         <!-- Copyright and link -->
         <StackPanel Grid.Row="1" Margin="0,0,0,8">
-            <TextBlock Text="Copyright © 2018-2026 Scott W. Vincent"/>
             <TextBlock>
                 <Hyperlink x:Name="WebsiteLink" Click="WebsiteLink_Click">
-                    http://www.swvincent.com/pcmeter
+                    https://github.com/swvincent/PcMeter
                 </Hyperlink>
             </TextBlock>
         </StackPanel>
