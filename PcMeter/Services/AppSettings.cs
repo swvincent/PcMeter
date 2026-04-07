@@ -29,10 +29,12 @@ public class AppSettings
         return new AppSettings();
     }
 
+    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+
     public void Save()
     {
         string path = SettingsPath;
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(path, JsonSerializer.Serialize(this, _jsonOptions));
     }
 }

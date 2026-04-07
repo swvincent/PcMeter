@@ -10,6 +10,7 @@ public class MetricsService : IDisposable
     {
         // Throws if performance counters are unavailable — caller handles
         _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+        _cpuCounter.NextValue(); // First call always returns 0; prime it so the first real read is accurate
     }
 
     public int GetCpuPercent()

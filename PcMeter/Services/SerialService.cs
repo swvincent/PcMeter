@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Windows.Threading;
@@ -60,12 +59,7 @@ public class SerialService
         try
         {
             if (_port.IsOpen)
-            {
-                // Drain write buffer, but don't wait more than 100ms to avoid blocking
-                var sw = Stopwatch.StartNew();
-                while (_port.BytesToWrite > 0 && sw.ElapsedMilliseconds < 100) { }
                 _port.Dispose();
-            }
         }
         catch (IOException)
         {

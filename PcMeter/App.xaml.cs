@@ -215,16 +215,14 @@ public partial class App : Application
 
     public void OnExitMenuClick()
     {
-        _timer?.Stop();
-        _serial?.Disconnect();
-        _metrics?.Dispose();
-        _trayIcon?.Dispose();
-        _singleInstanceMutex?.ReleaseMutex();
         Shutdown();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _timer?.Stop();
+        _serial?.Disconnect();
+        _metrics?.Dispose();
         _trayIcon?.Dispose();
         _singleInstanceMutex?.ReleaseMutex();
         base.OnExit(e);
