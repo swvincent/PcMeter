@@ -12,6 +12,10 @@ public class SerialService
     // (message)
     public event Action<string>? ErrorOccurred;
 
+    // Fired when the connection is lost mid-session (unplug, sleep/resume, etc.).
+    // No dialog is shown; the app auto-reconnects on the next timer tick.
+    public event Action? ConnectionLost;
+
     public bool IsConnected => _port?.IsOpen == true;
 
     public SerialService()
@@ -19,7 +23,8 @@ public class SerialService
         _dispatcher = Dispatcher.CurrentDispatcher;
     }
 
-    public bool Connect(string portName)
+    // Pass reportError: false during silent auto-reconnect attempts to suppress error dialogs.
+    public bool Connect(string portName, bool reportError = true)
     {
         try
         {
@@ -33,23 +38,26 @@ public class SerialService
         }
         catch (UnauthorizedAccessException)
         {
-            ErrorOccurred?.Invoke(
-                $"Access to {portName} is denied. It may already be in use by another application or process.");
+            if (reportError)
+                ErrorOccurred?.Invoke(
+                    $"Access to {portName} is denied. It may already be in use by another application or process.");
             _port?.Dispose();
             _port = null;
             return false;
         }
         catch (IOException)
         {
-            ErrorOccurred?.Invoke(
-                $"{portName} could not be opened. Check to be sure that it is a valid COM port.");
+            if (reportError)
+                ErrorOccurred?.Invoke(
+                    $"{portName} could not be opened. Check to be sure that it is a valid COM port.");
             _port?.Dispose();
             _port = null;
             return false;
         }
         catch (Exception ex)
         {
-            ErrorOccurred?.Invoke(ex.Message);
+            if (reportError)
+                ErrorOccurred?.Invoke(ex.Message);
             _port?.Dispose();
             _port = null;
             return false;
@@ -80,20 +88,16 @@ public class SerialService
         {
             _port!.Write($"C{cpu}\rM{mem}\r");
         }
-        catch (IOException ex)
+        catch (IOException)
         {
-            // Detect transient sleep/resume disconnects via Win32 error code rather than the
-            // exception message, which is localized and varies across Windows language editions.
-            // ERROR_GEN_FAILURE (31 / 0x1F) is raised when a USB virtual COM port loses its
-            // connection during sleep/resume. The HResult upper bits encode HRESULT facility
-            // info, so mask them off to get the underlying Win32 code.
-            bool isSleepResume = (ex.HResult & 0xFFFF) == 31;
-
-            if (!isSleepResume)
-                _dispatcher.Invoke(() => ErrorOccurred?.Invoke(ex.Message));
+            // Any IO failure means the connection is broken (unplug, sleep/resume, etc.).
+            // Disconnect and signal App to auto-reconnect on the next timer tick.
+            Disconnect();
+            _dispatcher.Invoke(() => ConnectionLost?.Invoke());
         }
         catch (Exception ex)
         {
+            Disconnect();
             _dispatcher.Invoke(() => ErrorOccurred?.Invoke(ex.Message));
         }
     }

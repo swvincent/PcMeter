@@ -62,6 +62,7 @@ public partial class App : Application
         // Initialize serial service
         _serial = new SerialService();
         _serial.ErrorOccurred += OnSerialError;
+        _serial.ConnectionLost += OnSerialConnectionLost;
 
         // Build tray icon and context menu entirely in code
         _trayIcon = CreateTrayIcon();
@@ -129,7 +130,22 @@ public partial class App : Application
         _cpuMenuItem!.Header = $"CPU: {cpu}%";
         _memMenuItem!.Header = $"Memory: {mem}%";
 
-        _serial!.TrySend(cpu, mem);
+        if (_serial!.IsConnected)
+        {
+            _serial.TrySend(cpu, mem);
+        }
+        else
+        {
+            // Auto-reconnect silently after unplug or sleep/resume
+            bool reconnected = _serial.Connect(_settings.ComPort, reportError: false);
+            if (reconnected)
+            {
+                _trayIcon!.ShowNotification("PC Meter",
+                    $"Reconnected to {_settings.ComPort}",
+                    NotificationIcon.Info);
+                RefreshMenuState();
+            }
+        }
     }
 
     private void TryConnect()
@@ -150,6 +166,12 @@ public partial class App : Application
         _connectMenuItem!.Header = connected ? "_Connected" : "_Connect";
         _connectMenuItem.IsChecked = connected;
         _settingsMenuItem!.IsEnabled = !connected;
+    }
+
+    private void OnSerialConnectionLost()
+    {
+        // Connection dropped (unplug, sleep/resume) — update UI; timer auto-reconnects each tick.
+        RefreshMenuState();
     }
 
     private bool _showingError;
