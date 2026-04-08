@@ -1,3 +1,4 @@
+using System.IO.Ports;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -133,6 +134,13 @@ public partial class App : Application
         if (_serial!.IsConnected)
         {
             _serial.TrySend(cpu, mem);
+            // Detect silent unplug: USB serial drivers buffer writes, so no exception is thrown.
+            // If the port has disappeared from the system, treat it as a lost connection.
+            if (!SerialPort.GetPortNames().Contains(_settings.ComPort))
+            {
+                _serial.Disconnect();
+                RefreshMenuState();
+            }
         }
         else
         {
