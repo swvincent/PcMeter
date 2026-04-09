@@ -136,10 +136,19 @@ public partial class App : Application
         if (_serial!.IsConnected)
         {
             _serial.TrySend(cpu, mem);
+            // Detect silent unplug: USB serial drivers buffer writes, so no exception is thrown.
+            // If the port has disappeared from the system, treat it as a lost connection.
+            // Guard against TrySend having already disconnected (e.g. via IOException), which
+            // would make the GetPortNames call redundant and RefreshMenuState fire twice.
+            if (_serial.IsConnected && !SerialPort.GetPortNames().Contains(_settings.ComPort))
+            {
+                _serial.Disconnect();
+                RefreshMenuState();
+            }
         }
         else
         {
-            // Silect disconnects happen, which go undetected w/o exception. Update menu if out of sync.
+            // Update menu if out of sync. Happens if silent unplug wasn't caught while still showing connected.
             if (_connectMenuItem is not null && _connectMenuItem.IsChecked)
                 RefreshMenuState();
 
