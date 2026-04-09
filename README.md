@@ -42,7 +42,7 @@ The app runs as a system tray icon. Right-click the tray icon to:
 
 On first run, go to Settings and select the COM port your Arduino is connected to. The setting is saved to `%APPDATA%\PcMeter\settings.json` and restored on next launch.
 
-The app shows a balloon tip when it successfully connects to the device. If the device is unplugged while running, an error message is shown and the app continues running — reconnect via the tray menu.
+The app shows a balloon tip when it successfully connects to the device. If the device is unplugged while running, the app detects the loss within 500ms, updates the tray menu, and automatically reconnects once the device is plugged back in — no manual action required.
 
 ### Settings
 

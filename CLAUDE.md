@@ -26,7 +26,7 @@ Entry point is `App.xaml.cs` (`App : Application`). There is no main window; the
 **Services/**
 - `AppSettings` — POCO with `ComPort` property. `Load()` / `Save()` read and write `%APPDATA%\PcMeter\settings.json` via `System.Text.Json`. Default port is `COM20`.
 - `MetricsService` — CPU% via `PerformanceCounter("Processor", "% Processor Time", "_Total")`; Memory% via P/Invoke through `PsApiWrapper`. Formula: `100 - (available / total * 100)`. Implements `IDisposable`.
-- `SerialService` — wraps `SerialPort` at 9600 baud. `Connect()` / `Disconnect()` / `TrySend(cpu, mem)`. Fires `ErrorOccurred(message, isSleepResumeError)` event, marshaled to the UI thread via the captured `Dispatcher`.
+- `SerialService` — wraps `SerialPort` at 9600 baud. `Connect()` / `Disconnect()` / `TrySend(cpu, mem)`. Fires `ErrorOccurred(message)` for unexpected errors and `ConnectionLost` for silent mid-session drops (unplug, sleep/resume); both events are marshaled to the UI thread via the captured `Dispatcher`. The timer in `App.xaml.cs` auto-reconnects each tick when disconnected, and polls `SerialPort.GetPortNames()` after each send to catch silent unplugs (USB drivers buffer writes, so no exception is thrown on device removal).
 - `PsApiWrapper` — static helper; P/Invokes `psapi.dll!GetPerformanceInfo` and returns `(available, total)` page counts.
 
 **Views/SettingsWindow** — lists available COM ports in a `ComboBox`, pre-selects the saved port, and calls `_settings.Save()` on OK.
