@@ -134,18 +134,16 @@ public partial class App : Application
         if (_serial!.IsConnected)
         {
             _serial.TrySend(cpu, mem);
-            // Detect silent unplug: USB serial drivers buffer writes, so no exception is thrown.
-            // If the port has disappeared from the system, treat it as a lost connection.
-            if (!SerialPort.GetPortNames().Contains(_settings.ComPort))
-            {
-                _serial.Disconnect();
-                RefreshMenuState();
-            }
         }
         else
         {
+            // Silect disconnects happen, which go undetected w/o exception. Update menu if out of sync.
+            if (_connectMenuItem is not null && _connectMenuItem.IsChecked)
+                RefreshMenuState();
+
             // Auto-reconnect silently after unplug or sleep/resume
             bool reconnected = _serial.Connect(_settings.ComPort, reportError: false);
+            
             if (reconnected)
             {
                 _trayIcon!.ShowNotification("PC Meter",
@@ -206,7 +204,7 @@ public partial class App : Application
         helper.Show();
 
         MessageBox.Show(helper,
-            $"A serial port communication error occured:\n\n{message}",
+            $"A serial port communication error occurred:\n\n{message}",
             "PC Meter Error", MessageBoxButton.OK, MessageBoxImage.Error);
         helper.Close();
 
