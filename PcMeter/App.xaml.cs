@@ -30,6 +30,8 @@ public partial class App : Application
     private Views.SettingsWindow? _settingsWindow;
     private Views.AboutWindow? _aboutWindow;
 
+    private bool _userDisconnected;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -141,6 +143,8 @@ public partial class App : Application
             if (_connectMenuItem is not null && _connectMenuItem.IsChecked)
                 RefreshMenuState();
 
+            if (_userDisconnected) return;
+
             // Auto-reconnect silently after unplug or sleep/resume
             bool reconnected = _serial.Connect(_settings.ComPort, reportError: false);
             
@@ -177,6 +181,7 @@ public partial class App : Application
     private void OnSerialConnectionLost()
     {
         // Connection dropped (unplug, sleep/resume) — update UI; timer auto-reconnects each tick.
+        _userDisconnected = false;
         RefreshMenuState();
     }
 
@@ -217,11 +222,13 @@ public partial class App : Application
     {
         if (_serial?.IsConnected == true)
         {
+            _userDisconnected = true;
             _serial.Disconnect();
             RefreshMenuState();
         }
         else
         {
+            _userDisconnected = false;
             TryConnect();
         }
     }
