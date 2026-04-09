@@ -30,9 +30,6 @@ public partial class App : Application
     private Views.SettingsWindow? _settingsWindow;
     private Views.AboutWindow? _aboutWindow;
 
-    // Set when the user explicitly disconnects — suppresses auto-reconnect
-    private bool _userDisconnected;
-
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -139,14 +136,13 @@ public partial class App : Application
             _serial.TrySend(cpu, mem);
             // Detect silent unplug: USB serial drivers buffer writes, so no exception is thrown.
             // If the port has disappeared from the system, treat it as a lost connection.
-            if (_serial.IsConnected && !SerialPort.GetPortNames().Contains(_settings.ComPort))
+            if (!SerialPort.GetPortNames().Contains(_settings.ComPort))
             {
-                _userDisconnected = false;
                 _serial.Disconnect();
                 RefreshMenuState();
             }
         }
-        else if (!_userDisconnected)
+        else
         {
             // Auto-reconnect silently after unplug or sleep/resume
             bool reconnected = _serial.Connect(_settings.ComPort, reportError: false);
@@ -183,7 +179,6 @@ public partial class App : Application
     private void OnSerialConnectionLost()
     {
         // Connection dropped (unplug, sleep/resume) — update UI; timer auto-reconnects each tick.
-        _userDisconnected = false;
         RefreshMenuState();
     }
 
@@ -211,7 +206,7 @@ public partial class App : Application
         helper.Show();
 
         MessageBox.Show(helper,
-            $"A serial port communication error occurred:\n\n{message}",
+            $"A serial port communication error occured:\n\n{message}",
             "PC Meter Error", MessageBoxButton.OK, MessageBoxImage.Error);
         helper.Close();
 
@@ -224,13 +219,11 @@ public partial class App : Application
     {
         if (_serial?.IsConnected == true)
         {
-            _userDisconnected = true;
             _serial.Disconnect();
             RefreshMenuState();
         }
         else
         {
-            _userDisconnected = false;
             TryConnect();
         }
     }

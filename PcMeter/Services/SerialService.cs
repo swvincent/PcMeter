@@ -88,9 +88,9 @@ public class SerialService
         {
             _port!.Write($"C{cpu}\rM{mem}\r");
         }
-        catch (Exception ex) when (ex is IOException or TimeoutException)
+        catch (IOException)
         {
-            // Any IO failure or write timeout means the connection is broken (unplug, sleep/resume, etc.).
+            // Any IO failure means the connection is broken (unplug, sleep/resume, etc.).
             // Disconnect and signal App to auto-reconnect on the next timer tick.
             Disconnect();
             _dispatcher.Invoke(() => ConnectionLost?.Invoke());
