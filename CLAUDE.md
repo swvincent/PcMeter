@@ -10,14 +10,14 @@ PcMeter is a Windows system tray application that reads CPU and memory utilizati
 
 There are two Windows tray applications in this repo. The modern one (`PcMeter/`) supersedes the legacy one (`PcMeter (legacy)/`).
 
-### PcMeter — .NET 8 WPF (current)
+### PcMeter — .NET 10 WPF (current)
 
 ```
 dotnet build PcMeter/PcMeter.csproj
 dotnet run --project PcMeter/PcMeter.csproj
 ```
 
-## Architecture — PcMeter (.NET 8 WPF)
+## Architecture — PcMeter (.NET 10 WPF)
 
 Entry point is `App.xaml.cs` (`App : Application`). There is no main window; the app is tray-only with `ShutdownMode = OnExplicitShutdown`.
 
