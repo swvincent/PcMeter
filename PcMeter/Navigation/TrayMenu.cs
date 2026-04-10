@@ -9,35 +9,30 @@ internal class TrayMenu : IDisposable
 {
     public TrayMenu()
     {
-        TrayIcon = CreateTrayIcon();
-    }
-
-    public TaskbarIcon TrayIcon { get; set; }
-    private MenuItem? CpuMenuItem { get; set; }
-    private MenuItem? MemMenuItem { get; set; }
-    public MenuItem? ConnectMenuItem { get; set; }
-    public MenuItem? SettingsMenuItem { get; set; }
-    public MenuItem? AboutMenuItem { get; set; }
-    public MenuItem? ExitMenuItem { get; set; }
-
-    private TaskbarIcon CreateTrayIcon()
-    {
-        CpuMenuItem = new MenuItem { Header = "CPU: ?", IsEnabled = false };
-        MemMenuItem = new MenuItem { Header = "Memory: ?", IsEnabled = false };
-
+        _cpuMenuItem = new MenuItem { Header = "CPU: ?", IsEnabled = false };
+        _memMenuItem = new MenuItem { Header = "Memory: ?", IsEnabled = false };
         ConnectMenuItem = new MenuItem { Header = "_Connect", IsCheckable = true };
         SettingsMenuItem = new MenuItem { Header = "_Settings" };
         AboutMenuItem = new MenuItem { Header = "_About" };
         ExitMenuItem = new MenuItem { Header = "E_xit" };
 
-        //ConnectMenuItem.Click += (_, _) => OnConnectMenuClick();
-        //SettingsMenuItem.Click += (_, _) => OnSettingsMenuClick();
-        //aboutItem.Click += (_, _) => OnAboutMenuClick();
-        //exitItem.Click += (_, _) => OnExitMenuClick();
+        _trayIcon = CreateTrayIcon();
+    }
 
+    public MenuItem ConnectMenuItem { get; set; }
+    public MenuItem SettingsMenuItem { get; set; }
+    public MenuItem AboutMenuItem { get; set; }
+    public MenuItem ExitMenuItem { get; set; }
+
+    readonly TaskbarIcon _trayIcon;
+    readonly MenuItem _cpuMenuItem;
+    readonly MenuItem _memMenuItem;
+
+    private TaskbarIcon CreateTrayIcon()
+    {
         var contextMenu = new ContextMenu();
-        contextMenu.Items.Add(CpuMenuItem);
-        contextMenu.Items.Add(MemMenuItem);
+        contextMenu.Items.Add(_cpuMenuItem);
+        contextMenu.Items.Add(_memMenuItem);
         contextMenu.Items.Add(new Separator());
         contextMenu.Items.Add(ConnectMenuItem);
         contextMenu.Items.Add(new Separator());
@@ -63,8 +58,8 @@ internal class TrayMenu : IDisposable
 
     public void UpdateCpuMem(int cpu, int mem)
     {
-        CpuMenuItem!.Header = $"CPU: {cpu}%";
-        MemMenuItem!.Header = $"Memory: {mem}%";
+        _cpuMenuItem!.Header = $"CPU: {cpu}%";
+        _memMenuItem!.Header = $"Memory: {mem}%";
     }
 
     public void RefreshMenuState(bool connected)
@@ -72,6 +67,13 @@ internal class TrayMenu : IDisposable
         ConnectMenuItem!.Header = connected ? "_Connected" : "_Connect";
         ConnectMenuItem.IsChecked = connected;
         SettingsMenuItem!.IsEnabled = !connected;
+    }
+
+    public void ShowNotification(string message, NotificationIcon icon = NotificationIcon.Info)
+    {
+        _trayIcon.ShowNotification("PC Meter",
+                    message,
+                    icon);
     }
 
     #region IDisposable Support
@@ -85,7 +87,7 @@ internal class TrayMenu : IDisposable
             if (disposing)
             {
                 // dispose managed state (managed objects)
-                TrayIcon.Dispose();
+                _trayIcon.Dispose();
             }
 
             // free unmanaged resources (unmanaged objects) and override finalizer

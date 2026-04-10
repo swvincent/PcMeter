@@ -1,10 +1,7 @@
 using System.IO.Ports;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using H.NotifyIcon;
-using H.NotifyIcon.Core;
+using PcMeter.Navigation;
 using PcMeter.Services;
 
 namespace PcMeter;
@@ -17,14 +14,8 @@ public partial class App : Application
     private readonly AppSettings _settings = AppSettings.Load();
     private MetricsService? _metrics;
     private SerialService? _serial;
-    private TaskbarIcon? _trayIcon;
     private DispatcherTimer? _timer;
-
-    // Named menu item refs — set in CreateTrayIcon()
-    private MenuItem? _cpuMenuItem;
-    private MenuItem? _memMenuItem;
-    private MenuItem? _connectMenuItem;
-    private MenuItem? _settingsMenuItem;
+    private TrayMenu? _menu;
 
     // Child windows (single-instance pattern)
     private Views.SettingsWindow? _settingsWindow;
@@ -67,8 +58,11 @@ public partial class App : Application
         _serial.ErrorOccurred += OnSerialError;
         _serial.ConnectionLost += OnSerialConnectionLost;
 
-        // Build tray icon and context menu entirely in code
-        _trayIcon = CreateTrayIcon();
+        _menu = new TrayMenu();
+        _menu.ConnectMenuItem.Click += (_, _) => OnConnectMenuClick();
+        _menu.SettingsMenuItem.Click += (_, _) => OnSettingsMenuClick();
+        _menu.AboutMenuItem.Click += (_, _) => OnAboutMenuClick();
+        _menu.ExitMenuItem.Click += (_, _) => OnExitMenuClick();
 
         // Set up timer
         _timer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher.CurrentDispatcher)
@@ -82,56 +76,12 @@ public partial class App : Application
         _timer.Start();
     }
 
-    private TaskbarIcon CreateTrayIcon()
-    {
-        _cpuMenuItem = new MenuItem { Header = "CPU: ?", IsEnabled = false };
-        _memMenuItem = new MenuItem { Header = "Memory: ?", IsEnabled = false };
-
-        _connectMenuItem = new MenuItem { Header = "_Connect", IsCheckable = true };
-        _connectMenuItem.Click += (_, _) => OnConnectMenuClick();
-
-        _settingsMenuItem = new MenuItem { Header = "_Settings" };
-        _settingsMenuItem.Click += (_, _) => OnSettingsMenuClick();
-
-        var aboutItem = new MenuItem { Header = "_About" };
-        aboutItem.Click += (_, _) => OnAboutMenuClick();
-
-        var exitItem = new MenuItem { Header = "E_xit" };
-        exitItem.Click += (_, _) => OnExitMenuClick();
-
-        var contextMenu = new ContextMenu();
-        contextMenu.Items.Add(_cpuMenuItem);
-        contextMenu.Items.Add(_memMenuItem);
-        contextMenu.Items.Add(new Separator());
-        contextMenu.Items.Add(_connectMenuItem);
-        contextMenu.Items.Add(new Separator());
-        contextMenu.Items.Add(_settingsMenuItem);
-        contextMenu.Items.Add(aboutItem);
-        contextMenu.Items.Add(new Separator());
-        contextMenu.Items.Add(exitItem);
-
-        var icon = new TaskbarIcon
-        {
-            IconSource = new BitmapImage(new Uri("pack://application:,,,/Assets/pcmeter.ico")),
-            ToolTipText = "PC Meter",
-            ContextMenu = contextMenu,
-            MenuActivation = PopupActivationMode.LeftOrRightClick
-        };
-
-        // Required when TaskbarIcon is created in code rather than being part of a visual tree.
-        // Without this, the icon never registers with the Windows system tray.
-        icon.ForceCreate(enablesEfficiencyMode: false);
-
-        return icon;
-    }
-
     private void OnTimerTick(object? sender, EventArgs e)
     {
         int cpu = _metrics!.GetCpuPercent();
         int mem = _metrics.GetMemPercent();
 
-        _cpuMenuItem!.Header = $"CPU: {cpu}%";
-        _memMenuItem!.Header = $"Memory: {mem}%";
+        _menu!.UpdateCpuMem(cpu, mem);
 
         if (_serial!.IsConnected)
         {
@@ -149,19 +99,18 @@ public partial class App : Application
         else
         {
             // Update menu if out of sync. Happens if silent unplug wasn't caught while still showing connected.
-            if (_connectMenuItem is not null && _connectMenuItem.IsChecked)
+            if (_menu.ConnectMenuItem.IsChecked)
                 RefreshMenuState();
 
-            if (_userDisconnected) return;
+            if (_userDisconnected)
+                return;
 
             // Auto-reconnect silently after unplug or sleep/resume
             bool reconnected = _serial.Connect(_settings.ComPort, reportError: false);
             
             if (reconnected)
             {
-                _trayIcon!.ShowNotification("PC Meter",
-                    $"Reconnected to {_settings.ComPort}",
-                    NotificationIcon.Info);
+                _menu.ShowNotification($"Reconnected to {_settings.ComPort}");
                 RefreshMenuState();
             }
         }
@@ -171,20 +120,15 @@ public partial class App : Application
     {
         bool connected = _serial!.Connect(_settings.ComPort);
         if (connected)
-        {
-            _trayIcon!.ShowNotification("PC Meter",
-                $"PC Meter connected to {_settings.ComPort}",
-                NotificationIcon.Info);
-        }
+            _menu!.ShowNotification($"PC Meter connected to {_settings.ComPort}");
+
         RefreshMenuState();
     }
 
     private void RefreshMenuState()
     {
         bool connected = _serial?.IsConnected == true;
-        _connectMenuItem!.Header = connected ? "_Connected" : "_Connect";
-        _connectMenuItem.IsChecked = connected;
-        _settingsMenuItem!.IsEnabled = !connected;
+        _menu!.RefreshMenuState(connected);
     }
 
     private void OnSerialConnectionLost()
@@ -251,9 +195,7 @@ public partial class App : Application
             _settingsWindow.Show();
         }
         else
-        {
             _settingsWindow.Activate();
-        }
     }
 
     private void OnAboutMenuClick()
@@ -265,9 +207,7 @@ public partial class App : Application
             _aboutWindow.Show();
         }
         else
-        {
             _aboutWindow.Activate();
-        }
     }
 
     private void OnExitMenuClick()
@@ -280,7 +220,7 @@ public partial class App : Application
         _timer?.Stop();
         _serial?.Disconnect();
         _metrics?.Dispose();
-        _trayIcon?.Dispose();
+        _menu?.Dispose();
         _singleInstanceMutex?.ReleaseMutex();
         base.OnExit(e);
     }
