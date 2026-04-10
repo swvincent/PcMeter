@@ -95,8 +95,9 @@ arduino/            Arduino firmware
 drawings/           Meter face artwork (SVG + PNG)
 ```
 
+## Development Notes
+I wrote the original version of this program several years ago in .NET Framework as a Winforms application. In 2026 I finally upgraded it to modern .NET and switched to WPF. I did this using Claude Code to automate much of the work of upgrading the application and then troubleshooting it. It's a little messy "under the hood" but it works and without the AI assistance I probably would have never got around to updating it.
+
 ## License
 
 MIT License — Copyright © 2018-2026 Scott W. Vincent
-
-http://www.swvincent.com/pcmeter
