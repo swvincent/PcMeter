@@ -59,10 +59,10 @@ public partial class App : Application
         _serial.ConnectionLost += OnSerialConnectionLost;
 
         _menu = new TrayMenu();
-        _menu.ConnectMenuItem.Click += (_, _) => OnConnectMenuClick();
-        _menu.SettingsMenuItem.Click += (_, _) => OnSettingsMenuClick();
-        _menu.AboutMenuItem.Click += (_, _) => OnAboutMenuClick();
-        _menu.ExitMenuItem.Click += (_, _) => OnExitMenuClick();
+        _menu.ConnectClicked += () => OnConnectMenuClick();
+        _menu.SettingsClicked += () => OnSettingsMenuClick();
+        _menu.AboutClicked += () => OnAboutMenuClick();
+        _menu.ExitClicked += () => OnExitMenuClick();
 
         // Set up timer
         _timer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher.CurrentDispatcher)
@@ -99,7 +99,7 @@ public partial class App : Application
         else
         {
             // Update menu if out of sync. Happens if silent unplug wasn't caught while still showing connected.
-            if (_menu.ConnectMenuItem.IsChecked)
+            if (_menu.ConnectedStatus)
                 RefreshMenuState();
 
             if (_userDisconnected)

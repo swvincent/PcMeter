@@ -11,22 +11,26 @@ internal class TrayMenu : IDisposable
     {
         _cpuMenuItem = new MenuItem { Header = "CPU: ?", IsEnabled = false };
         _memMenuItem = new MenuItem { Header = "Memory: ?", IsEnabled = false };
-        ConnectMenuItem = new MenuItem { Header = "_Connect", IsCheckable = true };
-        SettingsMenuItem = new MenuItem { Header = "_Settings" };
-        AboutMenuItem = new MenuItem { Header = "_About" };
-        ExitMenuItem = new MenuItem { Header = "E_xit" };
+        _connectMenuItem = new MenuItem { Header = "_Connect", IsCheckable = true };
+        _settingsMenuItem = new MenuItem { Header = "_Settings" };
+        _aboutMenuItem = new MenuItem { Header = "_About" };
+        _exitMenuItem = new MenuItem { Header = "E_xit" };
 
         _trayIcon = CreateTrayIcon();
     }
 
-    public MenuItem ConnectMenuItem { get; set; }
-    public MenuItem SettingsMenuItem { get; set; }
-    public MenuItem AboutMenuItem { get; set; }
-    public MenuItem ExitMenuItem { get; set; }
+    public event Action? ConnectClicked;
+    public event Action? SettingsClicked;
+    public event Action? AboutClicked;
+    public event Action? ExitClicked;
 
     readonly TaskbarIcon _trayIcon;
     readonly MenuItem _cpuMenuItem;
     readonly MenuItem _memMenuItem;
+    readonly MenuItem _connectMenuItem;
+    readonly MenuItem _settingsMenuItem;
+    readonly MenuItem _aboutMenuItem;
+    readonly MenuItem _exitMenuItem;
 
     private TaskbarIcon CreateTrayIcon()
     {
@@ -34,12 +38,17 @@ internal class TrayMenu : IDisposable
         contextMenu.Items.Add(_cpuMenuItem);
         contextMenu.Items.Add(_memMenuItem);
         contextMenu.Items.Add(new Separator());
-        contextMenu.Items.Add(ConnectMenuItem);
+        contextMenu.Items.Add(_connectMenuItem);
         contextMenu.Items.Add(new Separator());
-        contextMenu.Items.Add(SettingsMenuItem);
-        contextMenu.Items.Add(AboutMenuItem);
+        contextMenu.Items.Add(_settingsMenuItem);
+        contextMenu.Items.Add(_aboutMenuItem);
         contextMenu.Items.Add(new Separator());
-        contextMenu.Items.Add(ExitMenuItem);
+        contextMenu.Items.Add(_exitMenuItem);
+
+        _connectMenuItem.Click += (_, _) => ConnectClicked?.Invoke();
+        _settingsMenuItem.Click += (_, _) => SettingsClicked?.Invoke();
+        _aboutMenuItem.Click += (_, _) => AboutClicked?.Invoke();
+        _exitMenuItem.Click += (_, _) => ExitClicked?.Invoke();
 
         var icon = new TaskbarIcon
         {
@@ -64,9 +73,9 @@ internal class TrayMenu : IDisposable
 
     public void RefreshMenuState(bool connected)
     {
-        ConnectMenuItem!.Header = connected ? "_Connected" : "_Connect";
-        ConnectMenuItem.IsChecked = connected;
-        SettingsMenuItem!.IsEnabled = !connected;
+        _connectMenuItem!.Header = connected ? "_Connected" : "_Connect";
+        _connectMenuItem.IsChecked = connected;
+        _settingsMenuItem!.IsEnabled = !connected;
     }
 
     public void ShowNotification(string message, NotificationIcon icon = NotificationIcon.Info)
@@ -75,6 +84,8 @@ internal class TrayMenu : IDisposable
                     message,
                     icon);
     }
+
+    public bool ConnectedStatus => _connectMenuItem.IsChecked;
 
     #region IDisposable Support
 
