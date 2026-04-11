@@ -17,7 +17,8 @@ public class MetricsService : IDisposable
 
     public int GetCpuPercent()
     {
-        return (int)Math.Round(_cpuCounter.NextValue(), MidpointRounding.AwayFromZero);
+        return (int)Math.Round(_cpuCounter.NextValue(),
+            MidpointRounding.AwayFromZero);
     }
 
     public int GetMemPercent()
