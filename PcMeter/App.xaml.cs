@@ -21,6 +21,7 @@ public partial class App : Application
     private Views.SettingsWindow? _settingsWindow;
     private Views.AboutWindow? _aboutWindow;
 
+    private bool _showingError;
     private bool _userDisconnected;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -137,8 +138,6 @@ public partial class App : Application
         _userDisconnected = false;
         RefreshMenuState();
     }
-
-    private bool _showingError;
 
     private void OnSerialError(string message)
     {

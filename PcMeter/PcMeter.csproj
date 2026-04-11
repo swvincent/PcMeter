@@ -9,6 +9,7 @@
     <ApplicationIcon>Assets\pcmeter.ico</ApplicationIcon>
     <AssemblyName>PcMeter</AssemblyName>
     <RootNamespace>PcMeter</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
