@@ -85,7 +85,7 @@ internal class TrayMenu : IDisposable
                     icon);
     }
 
-    public bool ConnectedStatus => _connectMenuItem.IsChecked;
+    public bool IsShowingConnected => _connectMenuItem.IsChecked;
 
     #region IDisposable Support
 

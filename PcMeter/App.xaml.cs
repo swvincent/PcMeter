@@ -100,7 +100,7 @@ public partial class App : Application
         else
         {
             // Update menu if out of sync. Happens if silent unplug wasn't caught while still showing connected.
-            if (_menu.ConnectedStatus)
+            if (_menu.IsShowingConnected)
                 RefreshMenuState();
 
             if (_userDisconnected)
