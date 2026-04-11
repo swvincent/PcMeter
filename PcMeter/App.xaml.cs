@@ -217,7 +217,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         _timer?.Stop();
-        _serial?.Disconnect();
+        _serial?.Dispose();
         _metrics?.Dispose();
         _menu?.Dispose();
         _singleInstanceMutex?.ReleaseMutex();
