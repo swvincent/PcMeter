@@ -8,7 +8,7 @@ A Windows system tray application that sends CPU and memory utilization to a cus
 
 PC Meter consists of two parts:
 
-1. **Windows app** (`PcMeter/`) — a .NET 8 WPF tray application that reads CPU% and memory% every 500ms and sends the values to the meter device over a serial port.
+1. **Windows app** (`PcMeter/`) — a .NET WPF tray application that reads CPU% and memory% every 500ms and sends the values to the meter device over a serial port.
 2. **Arduino firmware** (`arduino/`) — runs on an Arduino Leonardo, receives the data over serial, and drives two analog panel meters with green/red LEDs.
 
 The meter hardware uses analog panel meters (VU-style gauges) driven by PWM output from the Arduino. Each meter has a green LED that switches to red when utilization exceeds 80%.
@@ -18,7 +18,7 @@ The meter hardware uses analog panel meters (VU-style gauges) driven by PWM outp
 ### Requirements
 
 - Windows 10/11
-- .NET 8 runtime (or SDK to build)
+- .NET 10 runtime (or SDK to build)
 - Arduino-based PC Meter device connected via USB (virtual COM port)
 
 ### Build & Run
@@ -89,7 +89,7 @@ Both are sent together every 500ms: `C42\rM67\r`
 ## Project Structure
 
 ```
-PcMeter/            .NET 8 WPF tray application (current)
+PcMeter/            .NET WPF tray application (current)
 PcMeter (legacy)/   .NET Framework 4.8 WinForms app (legacy)
 arduino/            Arduino firmware
 drawings/           Meter face artwork (SVG + PNG)

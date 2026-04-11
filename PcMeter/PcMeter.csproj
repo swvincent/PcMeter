@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -12,9 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="H.NotifyIcon.Wpf" Version="2.1.0" />
-    <PackageReference Include="System.IO.Ports" Version="9.0.0" />
-    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="9.0.0" />
+    <PackageReference Include="H.NotifyIcon.Wpf" Version="2.4.*" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.*" />
   </ItemGroup>
 
   <ItemGroup>
