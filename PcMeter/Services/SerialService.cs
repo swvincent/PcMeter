@@ -26,6 +26,9 @@ public class SerialService : IDisposable
     // Pass reportError: false during silent auto-reconnect attempts to suppress error dialogs.
     public bool Connect(string portName, bool reportError = true)
     {
+        _port?.Dispose();
+        _port = null;
+
         try
         {
             _port = new SerialPort(portName, 9600)
