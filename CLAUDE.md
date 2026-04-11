@@ -21,7 +21,9 @@ dotnet run --project PcMeter/PcMeter.csproj
 
 Entry point is `App.xaml.cs` (`App : Application`). There is no main window; the app is tray-only with `ShutdownMode = OnExplicitShutdown`.
 
-**App.xaml.cs** — central orchestrator. Owns the single-instance `Mutex`, creates the three services, and builds the `TaskbarIcon` and `ContextMenu` entirely in code via `CreateTrayIcon()`. Runs a 500ms `DispatcherTimer` that reads metrics and sends serial data each tick. All menu click handlers are private `OnXxxMenuClick()` methods here. `App.xaml` is minimal — no resources or XAML-defined UI.
+**App.xaml.cs** — central orchestrator. Owns the single-instance `Mutex`, creates the three services and `TrayMenu`, and wires up event handlers. Runs a 500ms `DispatcherTimer` that reads metrics and sends serial data each tick. All menu click handlers are private `OnXxxMenuClick()` methods here. `App.xaml` is minimal — no resources or XAML-defined UI.
+
+**Navigation/TrayMenu** — encapsulates the `TaskbarIcon` and `ContextMenu`. Builds the menu items (CPU%, memory%, Connect, Settings, About, Exit) in `CreateTrayIcon()`, exposes events (`ConnectClicked`, `SettingsClicked`, `AboutClicked`, `ExitClicked`), and provides `UpdateCpuMem()`, `RefreshMenuState()`, and `ShowNotification()` methods. Implements `IDisposable`.
 
 **Services/**
 - `AppSettings` — POCO with `ComPort` property. `Load()` / `Save()` read and write `%APPDATA%\PcMeter\settings.json` via `System.Text.Json`. Default port is `COM20`.

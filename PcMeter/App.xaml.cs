@@ -60,10 +60,10 @@ public partial class App : Application
         _serial.ConnectionLost += OnSerialConnectionLost;
 
         _menu = new TrayMenu();
-        _menu.ConnectClicked += () => OnConnectMenuClick();
-        _menu.SettingsClicked += () => OnSettingsMenuClick();
-        _menu.AboutClicked += () => OnAboutMenuClick();
-        _menu.ExitClicked += () => OnExitMenuClick();
+        _menu.ConnectClicked += OnConnectMenuClick;
+        _menu.SettingsClicked += OnSettingsMenuClick;
+        _menu.AboutClicked += OnAboutMenuClick;
+        _menu.ExitClicked += OnExitMenuClick;
 
         // Set up timer
         _timer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher.CurrentDispatcher)
