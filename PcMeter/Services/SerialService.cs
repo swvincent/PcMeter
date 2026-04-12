@@ -4,7 +4,7 @@ using System.Windows.Threading;
 
 namespace PcMeter.Services;
 
-public class SerialService
+public class SerialService : IDisposable
 {
     private SerialPort? _port;
     private readonly Dispatcher _dispatcher;
@@ -26,6 +26,9 @@ public class SerialService
     // Pass reportError: false during silent auto-reconnect attempts to suppress error dialogs.
     public bool Connect(string portName, bool reportError = true)
     {
+        _port?.Dispose();
+        _port = null;
+
         try
         {
             _port = new SerialPort(portName, 9600)
@@ -101,4 +104,40 @@ public class SerialService
             _dispatcher.Invoke(() => ErrorOccurred?.Invoke(ex.Message));
         }
     }
+
+    #region IDisposable Support
+
+    private bool disposedValue;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                _port?.Dispose();
+            }
+
+            // free unmanaged resources (unmanaged objects) and override finalizer
+            // set large fields to null
+            disposedValue = true;
+        }
+    }
+
+    // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~SerialService()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    #endregion
+
 }

@@ -21,6 +21,7 @@ public partial class App : Application
     private Views.SettingsWindow? _settingsWindow;
     private Views.AboutWindow? _aboutWindow;
 
+    private bool _showingError;
     private bool _userDisconnected;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -59,10 +60,10 @@ public partial class App : Application
         _serial.ConnectionLost += OnSerialConnectionLost;
 
         _menu = new TrayMenu();
-        _menu.ConnectClicked += () => OnConnectMenuClick();
-        _menu.SettingsClicked += () => OnSettingsMenuClick();
-        _menu.AboutClicked += () => OnAboutMenuClick();
-        _menu.ExitClicked += () => OnExitMenuClick();
+        _menu.ConnectClicked += OnConnectMenuClick;
+        _menu.SettingsClicked += OnSettingsMenuClick;
+        _menu.AboutClicked += OnAboutMenuClick;
+        _menu.ExitClicked += OnExitMenuClick;
 
         // Set up timer
         _timer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher.CurrentDispatcher)
@@ -99,7 +100,7 @@ public partial class App : Application
         else
         {
             // Update menu if out of sync. Happens if silent unplug wasn't caught while still showing connected.
-            if (_menu.ConnectedStatus)
+            if (_menu.IsShowingConnected)
                 RefreshMenuState();
 
             if (_userDisconnected)
@@ -137,8 +138,6 @@ public partial class App : Application
         _userDisconnected = false;
         RefreshMenuState();
     }
-
-    private bool _showingError;
 
     private void OnSerialError(string message)
     {
@@ -218,7 +217,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         _timer?.Stop();
-        _serial?.Disconnect();
+        _serial?.Dispose();
         _metrics?.Dispose();
         _menu?.Dispose();
         _singleInstanceMutex?.ReleaseMutex();

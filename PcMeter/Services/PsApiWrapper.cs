@@ -9,11 +9,11 @@ namespace PcMeter.Services;
 /// http://www.antoniob.com/windows-psapi-getperformanceinfo-csharp-wrapper.html
 /// Also see http://stackoverflow.com/questions/10027341/c-sharp-get-used-memory-in
 /// </remarks>
-internal static class PsApiWrapper
+internal static partial class PsApiWrapper
 {
-    [DllImport("psapi.dll", SetLastError = true)]
+    [LibraryImport("psapi.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool GetPerformanceInfo(out PsApiPerformanceInformation info, int size);
+    private static partial bool GetPerformanceInfo(out PsApiPerformanceInformation info, int size);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct PsApiPerformanceInformation

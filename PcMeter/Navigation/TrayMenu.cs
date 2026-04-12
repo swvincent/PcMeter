@@ -67,15 +67,15 @@ internal class TrayMenu : IDisposable
 
     public void UpdateCpuMem(int cpu, int mem)
     {
-        _cpuMenuItem!.Header = $"CPU: {cpu}%";
-        _memMenuItem!.Header = $"Memory: {mem}%";
+        _cpuMenuItem.Header = $"CPU: {cpu}%";
+        _memMenuItem.Header = $"Memory: {mem}%";
     }
 
     public void RefreshMenuState(bool connected)
     {
-        _connectMenuItem!.Header = connected ? "_Connected" : "_Connect";
+        _connectMenuItem.Header = connected ? "_Connected" : "_Connect";
         _connectMenuItem.IsChecked = connected;
-        _settingsMenuItem!.IsEnabled = !connected;
+        _settingsMenuItem.IsEnabled = !connected;
     }
 
     public void ShowNotification(string message, NotificationIcon icon = NotificationIcon.Info)
@@ -85,7 +85,7 @@ internal class TrayMenu : IDisposable
                     icon);
     }
 
-    public bool ConnectedStatus => _connectMenuItem.IsChecked;
+    public bool IsShowingConnected => _connectMenuItem.IsChecked;
 
     #region IDisposable Support
 
