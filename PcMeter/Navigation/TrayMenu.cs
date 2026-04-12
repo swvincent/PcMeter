@@ -87,40 +87,9 @@ internal class TrayMenu : IDisposable
 
     public bool IsShowingConnected => _connectMenuItem.IsChecked;
 
-    #region IDisposable Support
-
-    private bool disposedValue;
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
-                // dispose managed state (managed objects)
-                _trayIcon.Dispose();
-            }
-
-            // free unmanaged resources (unmanaged objects) and override finalizer
-            // set large fields to null
-            disposedValue = true;
-        }
-    }
-
-    // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~TrayMenu()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
-
     public void Dispose()
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
+        _trayIcon.Dispose();
         GC.SuppressFinalize(this);
     }
-
-    #endregion
-
 }
