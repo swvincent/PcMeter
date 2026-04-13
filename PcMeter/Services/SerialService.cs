@@ -95,49 +95,21 @@ public class SerialService : IDisposable
         {
             // Any IO failure or write timeout means the connection is broken (unplug, sleep/resume, etc.).
             // Disconnect and signal App to auto-reconnect on the next timer tick.
+            // BeginInvoke (async) is used so the event fires after the current tick completes,
+            // rather than re-entrantly from within TrySend.
             Disconnect();
-            _dispatcher.Invoke(() => ConnectionLost?.Invoke());
+            _dispatcher.BeginInvoke(() => ConnectionLost?.Invoke());
         }
         catch (Exception ex)
         {
             Disconnect();
-            _dispatcher.Invoke(() => ErrorOccurred?.Invoke(ex.Message));
+            _dispatcher.BeginInvoke(() => ErrorOccurred?.Invoke(ex.Message));
         }
     }
-
-    #region IDisposable Support
-
-    private bool disposedValue;
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
-                _port?.Dispose();
-            }
-
-            // free unmanaged resources (unmanaged objects) and override finalizer
-            // set large fields to null
-            disposedValue = true;
-        }
-    }
-
-    // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~SerialService()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
 
     public void Dispose()
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
+        _port?.Dispose();
         GC.SuppressFinalize(this);
     }
-
-    #endregion
-
 }

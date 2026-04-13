@@ -135,7 +135,11 @@ public partial class App : Application
     private void OnSerialConnectionLost()
     {
         // Connection dropped (unplug, sleep/resume) — update UI; timer auto-reconnects each tick.
+        
+        // _userDisconnected should already be false here (TrySend can't fire while user-disconnected),
+        // but reset it as a safety net in case that ever changes.
         _userDisconnected = false;
+        
         RefreshMenuState();
     }
 
